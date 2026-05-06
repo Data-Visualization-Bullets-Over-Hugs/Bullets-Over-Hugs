@@ -19,13 +19,12 @@ env/
 .streamlit/secrets.toml
 
 # Data files (add exceptions as needed)
-data/*.csv
-data/*.xlsx
-data/*.json
+data/raw/
+data/*.tmp
+data/*.bak
 
 # Jupyter
 .ipynb_checkpoints/
-*.ipynb
 
 # macOS
 .DS_Store
