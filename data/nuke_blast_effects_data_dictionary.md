@@ -14,7 +14,7 @@ Casualty estimates use NUKEMAP's server-side model based on LandScan population 
 
 ## File: `nuke_blast_effects.csv`
 
-One row per bomb. 7 rows × 24 columns.
+One row per bomb. 7 rows × 25 columns.
 
 ### Identifiers and display
 
@@ -71,6 +71,21 @@ These are the four ring radii to draw on the map. **All in kilometres.**
 |---|---|---|
 | `fatalities_per_kt` | float | fatalities / yield_kt. Drops sharply with yield (saturation effect). |
 | `fatality_to_injury_ratio` | float | fatalities / injuries. Rises with yield — bigger bombs kill rather than injure. |
+| `hiroshima_ratio` | float | yield_kt / 15. How many Hiroshima bombs (Little Boy, 15 kt) this weapon equals in raw explosive yield. Little Boy itself = 1.0 by definition. |
+
+**Hiroshima ratio quick reference:**
+
+| Bomb | yield_kt | hiroshima_ratio |
+|---|---|---|
+| Little Boy | 15 | 1 |
+| Fat Man | 20 | 1 |
+| R-12 (SS-4) | 2,300 | 153 |
+| Dong Feng-4 | 3,300 | 220 |
+| Ivy Mike | 10,400 | 693 |
+| Castle Bravo | 15,000 | 1,000 |
+| Tsar Bomba | 50,000 | 3,333 |
+
+⚠ `hiroshima_ratio` is a **yield ratio only** — it does not scale linearly to casualties or blast radius (which follow a cube-root scaling law). A bomb 3,333× the yield does not cause 3,333× the deaths.
 
 ### Context
 
