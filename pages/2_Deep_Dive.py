@@ -3,7 +3,6 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 
-st.set_page_config(page_title="Deep Dive", page_icon="🔍", layout="wide")
 
 st.title("🔍 Deep Dive")
 st.markdown("Drill down into individual countries and correlations.")
@@ -45,18 +44,18 @@ with col1:
         color=y_axis,
         color_continuous_scale="Reds",
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
 with col2:
     fig2 = px.scatter(
         country_df,
         x=x_axis,
         y=y_axis,
-        trendline="ols",
+        trendline="lowess",
         title=f"{x_axis} vs {y_axis} — {country}",
         hover_data=["Year"],
     )
-    st.plotly_chart(fig2, use_container_width=True)
+    st.plotly_chart(fig2, width="stretch")
 
 st.divider()
 
@@ -72,4 +71,4 @@ fig_corr = px.imshow(
     zmin=-1,
     zmax=1,
 )
-st.plotly_chart(fig_corr, use_container_width=True)
+st.plotly_chart(fig_corr, width="stretch")

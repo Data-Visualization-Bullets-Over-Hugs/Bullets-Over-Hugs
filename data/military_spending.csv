@@ -1,24 +1,24 @@
-country,total,label,currency,source,source_link,location
-United States,997000000000,$997B,USD,Visual Capitalist / SIPRI,https://www.sipri.org/databases/milex,Main Infographic
-China,314000000000,$314B,USD,Visual Capitalist / SIPRI,https://www.sipri.org/databases/milex,Main Infographic
-Rest of World,306000000000,$306B,USD,Visual Capitalist / SIPRI,https://www.sipri.org/databases/milex,Main Infographic
-Russia,149000000000,$149B,USD,Visual Capitalist / SIPRI,https://www.sipri.org/databases/milex,Main Infographic
-Germany,88000000000,$88B,USD,Visual Capitalist / SIPRI,https://www.sipri.org/databases/milex,Main Infographic
-India,86000000000,$86B,USD,Visual Capitalist / SIPRI,https://www.sipri.org/databases/milex,Main Infographic
-United Kingdom,82000000000,$82B,USD,Visual Capitalist / SIPRI,https://www.sipri.org/databases/milex,Main Infographic
-Saudi Arabia,80000000000,$80B,USD,Visual Capitalist / SIPRI,https://www.sipri.org/databases/milex,Main Infographic
-France,65000000000,$65B,USD,Visual Capitalist / SIPRI,https://www.sipri.org/databases/milex,Main Infographic
-Ukraine,65000000000,$65B,USD,Visual Capitalist / SIPRI,https://www.sipri.org/databases/milex,Main Infographic
-Japan,55000000000,$55B,USD,Visual Capitalist / SIPRI,https://www.sipri.org/databases/milex,Main Infographic
-South Korea,48000000000,$48B,USD,Visual Capitalist / SIPRI,https://www.sipri.org/databases/milex,Main Infographic
-Israel,47000000000,$47B,USD,Visual Capitalist / SIPRI,https://www.sipri.org/databases/milex,Main Infographic
-Poland,38000000000,$38B,USD,Visual Capitalist / SIPRI,https://www.sipri.org/databases/milex,Main Infographic
-Italy,38000000000,$38B,USD,Visual Capitalist / SIPRI,https://www.sipri.org/databases/milex,Main Infographic
-Australia,34000000000,$34B,USD,Visual Capitalist / SIPRI,https://www.sipri.org/databases/milex,Main Infographic
-Canada,29000000000,$29B,USD,Visual Capitalist / SIPRI,https://www.sipri.org/databases/milex,Main Infographic
-Türkiye,25000000000,$25B,USD,Visual Capitalist / SIPRI,https://www.sipri.org/databases/milex,Main Infographic
-Spain,25000000000,$25B,USD,Visual Capitalist / SIPRI,https://www.sipri.org/databases/milex,Main Infographic
-Netherlands,23000000000,$23B,USD,Visual Capitalist / SIPRI,https://www.sipri.org/databases/milex,Main Infographic
-Algeria,22000000000,$22B,USD,Visual Capitalist / SIPRI,https://www.sipri.org/databases/milex,Main Infographic
-Brazil,21000000000,$21B,USD,Visual Capitalist / SIPRI,https://www.sipri.org/databases/milex,Main Infographic
-Mexico,17000000000,$17B,USD,Visual Capitalist / SIPRI,https://www.sipri.org/databases/milex,Main Infographic
+country,continent,total,label,flag_url,currency,source,source_link,location
+United States,North America,997000000000,$997B,https://flagcdn.com/w40/us.png,USD,Visual Capitalist / SIPRI,https://www.sipri.org/databases/milex,Main Infographic
+China,Asia,314000000000,$314B,https://flagcdn.com/w40/cn.png,USD,Visual Capitalist / SIPRI,https://www.sipri.org/databases/milex,Main Infographic
+Rest of World,Rest of World,306000000000,$306B,,USD,Visual Capitalist / SIPRI,https://www.sipri.org/databases/milex,Main Infographic
+Russia,Europe,149000000000,$149B,https://flagcdn.com/w40/ru.png,USD,Visual Capitalist / SIPRI,https://www.sipri.org/databases/milex,Main Infographic
+Germany,Europe,88000000000,$88B,https://flagcdn.com/w40/de.png,USD,Visual Capitalist / SIPRI,https://www.sipri.org/databases/milex,Main Infographic
+India,Asia,86000000000,$86B,https://flagcdn.com/w40/in.png,USD,Visual Capitalist / SIPRI,https://www.sipri.org/databases/milex,Main Infographic
+United Kingdom,Europe,82000000000,$82B,https://flagcdn.com/w40/gb.png,USD,Visual Capitalist / SIPRI,https://www.sipri.org/databases/milex,Main Infographic
+Saudi Arabia,Middle East,80000000000,$80B,https://flagcdn.com/w40/sa.png,USD,Visual Capitalist / SIPRI,https://www.sipri.org/databases/milex,Main Infographic
+France,Europe,65000000000,$65B,https://flagcdn.com/w40/fr.png,USD,Visual Capitalist / SIPRI,https://www.sipri.org/databases/milex,Main Infographic
+Ukraine,Europe,65000000000,$65B,https://flagcdn.com/w40/ua.png,USD,Visual Capitalist / SIPRI,https://www.sipri.org/databases/milex,Main Infographic
+Japan,Asia,55000000000,$55B,https://flagcdn.com/w40/jp.png,USD,Visual Capitalist / SIPRI,https://www.sipri.org/databases/milex,Main Infographic
+South Korea,Asia,48000000000,$48B,https://flagcdn.com/w40/kr.png,USD,Visual Capitalist / SIPRI,https://www.sipri.org/databases/milex,Main Infographic
+Israel,Middle East,47000000000,$47B,https://flagcdn.com/w40/il.png,USD,Visual Capitalist / SIPRI,https://www.sipri.org/databases/milex,Main Infographic
+Poland,Europe,38000000000,$38B,https://flagcdn.com/w40/pl.png,USD,Visual Capitalist / SIPRI,https://www.sipri.org/databases/milex,Main Infographic
+Italy,Europe,38000000000,$38B,https://flagcdn.com/w40/it.png,USD,Visual Capitalist / SIPRI,https://www.sipri.org/databases/milex,Main Infographic
+Australia,Oceania,34000000000,$34B,https://flagcdn.com/w40/au.png,USD,Visual Capitalist / SIPRI,https://www.sipri.org/databases/milex,Main Infographic
+Canada,North America,29000000000,$29B,https://flagcdn.com/w40/ca.png,USD,Visual Capitalist / SIPRI,https://www.sipri.org/databases/milex,Main Infographic
+Türkiye,Middle East,25000000000,$25B,https://flagcdn.com/w40/tr.png,USD,Visual Capitalist / SIPRI,https://www.sipri.org/databases/milex,Main Infographic
+Spain,Europe,25000000000,$25B,https://flagcdn.com/w40/es.png,USD,Visual Capitalist / SIPRI,https://www.sipri.org/databases/milex,Main Infographic
+Netherlands,Europe,23000000000,$23B,https://flagcdn.com/w40/nl.png,USD,Visual Capitalist / SIPRI,https://www.sipri.org/databases/milex,Main Infographic
+Algeria,Africa,22000000000,$22B,https://flagcdn.com/w40/dz.png,USD,Visual Capitalist / SIPRI,https://www.sipri.org/databases/milex,Main Infographic
+Brazil,South America,21000000000,$21B,https://flagcdn.com/w40/br.png,USD,Visual Capitalist / SIPRI,https://www.sipri.org/databases/milex,Main Infographic
+Mexico,North America,17000000000,$17B,https://flagcdn.com/w40/mx.png,USD,Visual Capitalist / SIPRI,https://www.sipri.org/databases/milex,Main Infographic
