@@ -183,7 +183,29 @@ with st.container(border=True):
                 color="rgba(239,35,60,0.72)", 
                 line=dict(color="rgba(217,4,41,0.95)", width=1)
             ),
-            hovertemplate="<b>%{customdata[0]}</b><br>Total: %{customdata[2]:,}<extra></extra>",
+            hovertemplate=(
+                "<b style='font-size:15px;color:#edf2f4;'>%{customdata[0]}</b>"
+                "&nbsp;&nbsp;<span style='font-size:10px;color:#64748b;'>%{customdata[1]}</span>"
+                "<br><span style='color:#2a3550;'>━━━━━━━━━━━━━━━━━━━━━━</span>"
+                "<br><span style='font-size:10px;color:#94a3b8;'>TOTAL DEATHS</span>"
+                "<br><span style='font-size:4px;'>​</span>"
+                "<br><b style='font-size:22px;color:#ff2447;'>%{customdata[2]:,}</b>"
+                "<br><span style='color:#2a3550;'>━━━━━━━━━━━━━━━━━━━━━━</span>"
+                "<br><span style='font-size:11px;color:#94a3b8;'>👥 Civilian: </span>"
+                "<b style='font-size:11px;color:#cbd5e1;'>%{customdata[3]:,}</b>"
+                "<br><span style='font-size:11px;color:#94a3b8;'>⚔️ Combatant: </span>"
+                "<b style='font-size:11px;color:#cbd5e1;'>%{customdata[4]:,}</b>"
+                "<br><span style='font-size:11px;color:#94a3b8;'>❓ Unclear: </span>"
+                "<b style='font-size:11px;color:#cbd5e1;'>%{customdata[5]:,}</b>"
+                "<extra></extra>"
+            ),
+            hoverlabel=dict(
+                bgcolor="rgba(4,9,20,0.97)",
+                bordercolor="rgba(239,35,60,0.5)",
+                font=dict(color="#edf2f4", size=12, family="system-ui, -apple-system, sans-serif"),
+                namelength=0,
+                align="left",
+            ),
             showlegend=False
         ))
         
@@ -225,8 +247,25 @@ with left_col:
         st.subheader("Timeline of Total Conflict Deaths")
         t_fig = px.line(trend_df, x="year", y="total_deaths", markers=True,
                         labels={"year": "Year", "total_deaths": "Total Deaths"})
-        t_fig.update_traces(line_color="#ff2447", marker=dict(size=8))
-        # DOT LINE REMOVED
+        t_fig.update_traces(
+            line_color="#ff2447",
+            marker=dict(size=8, color="#ff2447", line=dict(color="rgba(217,4,41,0.95)", width=1)),
+            hovertemplate=(
+                "<span style='font-size:10px;color:#94a3b8;'>TOTAL DEATHS</span>"
+                "<br><span style='font-size:4px;'>​</span>"
+                "<br><b style='font-size:22px;color:#ff2447;'>%{y:,}</b>"
+                "<br><span style='color:#2a3550;'>━━━━━━━━━━━━━━━━</span>"
+                "<br><span style='font-size:10px;color:#64748b;'>Year: %{x}</span>"
+                "<extra></extra>"
+            ),
+            hoverlabel=dict(
+                bgcolor="rgba(4,9,20,0.97)",
+                bordercolor="rgba(239,35,60,0.5)",
+                font=dict(color="#edf2f4", size=12, family="system-ui, sans-serif"),
+                namelength=0,
+                align="left",
+            ),
+        )
         t_fig.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", 
                             height=280, font=dict(color="#edf2f4"), margin=dict(l=10, r=10, t=30, b=10))
         st.plotly_chart(t_fig, use_container_width=True)
@@ -238,8 +277,26 @@ with left_col:
         st.subheader("Timeline of Unique Countries in Conflict")
         c_fig = px.line(trend_df, x="year", y="active_countries_count", markers=True,
                         labels={"year": "Year", "active_countries_count": "Active Countries"})
-        c_fig.update_traces(line_color="#ff2447", marker=dict(size=8))
-        # DOT LINE REMOVED
+        c_fig.update_traces(
+            line_color="#ff2447",
+            marker=dict(size=8, color="#ff2447", line=dict(color="rgba(217,4,41,0.95)", width=1)),
+            hovertemplate=(
+                "<span style='font-size:10px;color:#94a3b8;'>ACTIVE CONFLICT ZONES</span>"
+                "<br><span style='font-size:4px;'>​</span>"
+                "<br><b style='font-size:22px;color:#ff2447;'>%{y}</b>"
+                "<span style='font-size:13px;color:#94a3b8;'> countries</span>"
+                "<br><span style='color:#2a3550;'>━━━━━━━━━━━━━━━━</span>"
+                "<br><span style='font-size:10px;color:#64748b;'>Year: %{x}</span>"
+                "<extra></extra>"
+            ),
+            hoverlabel=dict(
+                bgcolor="rgba(4,9,20,0.97)",
+                bordercolor="rgba(239,35,60,0.5)",
+                font=dict(color="#edf2f4", size=12, family="system-ui, sans-serif"),
+                namelength=0,
+                align="left",
+            ),
+        )
         c_fig.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", 
                             height=280, font=dict(color="#edf2f4"), margin=dict(l=10, r=10, t=30, b=10))
         st.plotly_chart(c_fig, use_container_width=True)
@@ -255,7 +312,24 @@ with right_col:
         r_fig = px.bar(top_df, x="metric_value", y="country", orientation="h",
                        labels={"metric_value": selected_metric_label, "country": "Country"},
                        text_auto=',.0f')
-        r_fig.update_traces(marker_color="#ff2447")
+        r_fig.update_traces(
+            marker_color="#ff2447",
+            hovertemplate=(
+                "<b style='font-size:14px;color:#edf2f4;'>%{y}</b>"
+                "<br><span style='color:#2a3550;'>━━━━━━━━━━━━━━━━━━━━</span>"
+                "<br><span style='font-size:10px;color:#94a3b8;'>" + selected_metric_label.upper() + "</span>"
+                "<br><span style='font-size:4px;'>​</span>"
+                "<br><b style='font-size:22px;color:#ff2447;'>%{x:,}</b>"
+                "<extra></extra>"
+            ),
+            hoverlabel=dict(
+                bgcolor="rgba(4,9,20,0.97)",
+                bordercolor="rgba(239,35,60,0.5)",
+                font=dict(color="#edf2f4", size=12, family="system-ui, sans-serif"),
+                namelength=0,
+                align="left",
+            ),
+        )
         r_fig.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", 
                             height=605, font=dict(color="#edf2f4"), 
                             margin=dict(l=10, r=40, t=30, b=10), yaxis=dict(autorange="reversed"))

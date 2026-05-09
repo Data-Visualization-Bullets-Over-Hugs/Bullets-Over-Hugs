@@ -98,44 +98,6 @@ st.markdown("""
         margin-top: 6px;
     }
 
-    /* Radius Summary Cards - Adjusted for horizontal flex layout */
-    .radius-card {
-        display: flex;
-        align-items: center;
-        border: 1px solid;
-        border-radius: 12px;
-        padding: 10px 12px;
-        transition: transform 0.2s;
-        flex: 1; /* Forces them to stretch horizontally equally */
-        min-width: 140px; /* Prevents them from crushing too tight */
-    }
-    .radius-card:hover {
-        transform: translateY(-2px);
-    }
-    .radius-dot {
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-        margin-right: 10px;
-        flex-shrink: 0;
-        border: 1px solid rgba(255,255,255,0.4);
-    }
-    .radius-details {
-        flex-grow: 1;
-    }
-    .radius-title {
-        font-size: 0.75rem;
-        color: #cbd5e1;
-        font-weight: 600;
-        line-height: 1.2;
-    }
-    .radius-value {
-        font-size: 1rem;
-        color: #edf2f4;
-        font-weight: 700;
-        margin-top: 2px;
-    }
-
     /* Context Card */
     .context-card {
         background: rgba(15, 25, 45, 0.4);
@@ -239,35 +201,46 @@ def metric_card(label, value, note=""):
     """
     return "".join(line.strip() for line in html.split('\n'))
 
+ZONE_META = {
+    "Fireball / total destruction zone": {
+        "fill_color": [220, 38, 38, 160],
+        "line_color": [255, 80, 80, 255],
+        "description": "Everything within this radius is vaporized. Complete destruction of all structures. No survivors.",
+        "icon": "☢️",
+    },
+    "Heavy damage zone (5 psi blast)": {
+        "fill_color": [249, 115, 22, 100],
+        "line_color": [255, 150, 50, 255],
+        "description": "Reinforced concrete structures severely damaged or demolished. Very few survivors without deep shelter.",
+        "icon": "🔥",
+    },
+    "Moderate damage zone (1 psi blast)": {
+        "fill_color": [234, 179, 8, 80],
+        "line_color": [255, 215, 50, 255],
+        "description": "Residential buildings collapse. Flying debris causes widespread injuries. Partial survivability in shelter.",
+        "icon": "💥",
+    },
+    "Thermal radiation zone": {
+        "fill_color": [14, 165, 233, 60],
+        "line_color": [50, 200, 255, 255],
+        "description": "Third-degree burns to exposed skin. Fires ignite across the area. Significant risk to those outdoors.",
+        "icon": "🌡️",
+    },
+}
+
 def build_rings(row):
-    rings = [
-        {
-            "ring_label": "Fireball / total destruction zone",
-            "radius_km": row["fireball_km"],
-            "fill_color": [220, 38, 38, 160],   # Red
-            "line_color": [255, 80, 80, 255]
-        },
-        {
-            "ring_label": "Heavy damage zone (5 psi blast)",
-            "radius_km": row["heavy_5psi_km"],
-            "fill_color": [249, 115, 22, 100],  # Orange
-            "line_color": [255, 150, 50, 255]
-        },
-        {
-            "ring_label": "Moderate damage zone (1 psi blast)",
-            "radius_km": row["moderate_1psi_km"],
-            "fill_color": [234, 179, 8, 80],    # Yellow
-            "line_color": [255, 215, 50, 255]
-        },
-        {
-            "ring_label": "Thermal radiation zone",
-            "radius_km": row["thermal_3rd_km"],
-            "fill_color": [14, 165, 233, 60],   # Cyan
-            "line_color": [50, 200, 255, 255]
-        }
+    raw = [
+        ("Fireball / total destruction zone", row["fireball_km"]),
+        ("Heavy damage zone (5 psi blast)",   row["heavy_5psi_km"]),
+        ("Moderate damage zone (1 psi blast)", row["moderate_1psi_km"]),
+        ("Thermal radiation zone",             row["thermal_3rd_km"]),
     ]
 
-    rings = [r for r in rings if pd.notna(r["radius_km"]) and r["radius_km"] > 0]
+    rings = [
+        {**ZONE_META[label], "ring_label": label, "radius_km": km}
+        for label, km in raw
+        if pd.notna(km) and km > 0
+    ]
     rings = sorted(rings, key=lambda x: x["radius_km"], reverse=True)
 
     return pd.DataFrame([
@@ -279,6 +252,8 @@ def build_rings(row):
             "radius_km": round(r["radius_km"], 2),
             "fill_color": r["fill_color"],
             "line_color": r["line_color"],
+            "description": r["description"],
+            "icon": r["icon"],
         }
         for r in rings
     ])
@@ -315,8 +290,6 @@ with top_col1:
         format_func=format_dropdown_label
     )
     
-    radius_summary_placeholder = st.empty()
-
 with top_col2:
     st.markdown("<div style='margin-top: 28px;'></div>", unsafe_allow_html=True)
     if st.button("DETONATE", type="primary", width="stretch"):
@@ -384,32 +357,6 @@ def render_metrics(progress):
     """
     metrics_placeholder.markdown(html, unsafe_allow_html=True)
 
-def render_radius_summary():
-    if not st.session_state.detonated:
-        radius_summary_placeholder.empty()
-        return
-
-    html = "<div style='display: flex; gap: 12px; margin-top: 12px; margin-bottom: 8px; flex-wrap: wrap;'>"
-    
-    for _, ring in rings_df.iterrows():
-        r, g, b, _ = ring["line_color"]
-        dot_color = f"rgba({r},{g},{b},1)"
-        bg_color = f"rgba({r},{g},{b},0.08)"
-        border_color = f"rgba({r},{g},{b},0.25)"
-        
-        card_html = f"""
-        <div class="radius-card" style="background: {bg_color}; border-color: {border_color};">
-            <div class="radius-dot" style="background-color: {dot_color}; box-shadow: 0 0 8px {dot_color};"></div>
-            <div class="radius-details">
-                <div class="radius-title">{ring['ring_label']}</div>
-                <div class="radius-value">{ring['radius_km']} km</div>
-            </div>
-        </div>
-        """
-        html += "".join(line.strip() for line in card_html.split('\n'))
-        
-    html += "</div>"
-    radius_summary_placeholder.markdown(html, unsafe_allow_html=True)
 
 def render_map(progress):
     layers = []
@@ -421,6 +368,23 @@ def render_map(progress):
     if st.session_state.detonated:
         current_zoom = start_zoom + (target_zoom - start_zoom) * progress
         for _, ring in rings_df.iterrows():
+            r, g, b, _ = ring["line_color"]
+            glow = f"rgba({r},{g},{b},0.7)"
+            dot_bg = f"rgba({r},{g},{b},1)"
+            header_border = f"rgba({r},{g},{b},0.3)"
+            tooltip_html = (
+                f'<div style="font-family:system-ui,sans-serif;min-width:230px;max-width:290px;">'
+                f'<div style="display:flex;align-items:center;gap:10px;padding-bottom:10px;'
+                f'margin-bottom:10px;border-bottom:1px solid {header_border};">'
+                f'<div style="width:13px;height:13px;border-radius:50%;background:{dot_bg};'
+                f'box-shadow:0 0 10px {glow};flex-shrink:0;"></div>'
+                f'<span style="font-size:12px;font-weight:700;color:#edf2f4;line-height:1.3;">'
+                f'{ring["ring_label"]}</span></div>'
+                f'<div style="font-size:26px;font-weight:800;color:#fff;letter-spacing:-0.03em;'
+                f'margin-bottom:6px;">{ring["radius_km"]} km</div>'
+                f'<div style="font-size:11px;color:#94a3b8;line-height:1.5;">{ring["description"]}</div>'
+                f'</div>'
+            )
             layers.append(
                 pdk.Layer(
                     "ScatterplotLayer",
@@ -428,8 +392,7 @@ def render_map(progress):
                         "lat": ring["lat"],
                         "lon": ring["lon"],
                         "radius_m": ring["radius_m"] * progress,
-                        # FIX: Pre-format the HTML string in the DataFrame
-                        "tooltip_html": f"<b>{ring['ring_label']}</b><br/>Radius: {ring['radius_km']} km"
+                        "tooltip_html": tooltip_html,
                     }]),
                     get_position='[lon, lat]',
                     get_radius='radius_m',
@@ -450,8 +413,13 @@ def render_map(progress):
             data=pd.DataFrame([{
                 "lat": base_lat,
                 "lon": base_lon,
-                # FIX: Add a tooltip string specifically for Ground Zero
-                "tooltip_html": "<b>Ground Zero</b><br/>Target Center"
+                "tooltip_html": (
+                    '<div style="font-family:system-ui,sans-serif;text-align:center;">'
+                    '<div style="font-size:22px;margin-bottom:4px;">🎯</div>'
+                    '<div style="font-size:13px;font-weight:800;color:#ef233c;letter-spacing:0.05em;">GROUND ZERO</div>'
+                    '<div style="font-size:11px;color:#94a3b8;margin-top:4px;">Detonation epicentre</div>'
+                    '</div>'
+                ),
             }]),
             get_position='[lon, lat]',
             get_radius=150,
@@ -469,15 +437,17 @@ def render_map(progress):
             pitch=0
         ),
         layers=layers,
-        # FIX: Tell PyDeck to simply render our dynamically built string
         tooltip={
             "html": "{tooltip_html}",
             "style": {
-                "backgroundColor": "rgba(5,11,24,0.94)",
+                "backgroundColor": "rgba(4, 9, 20, 0.97)",
                 "color": "white",
-                "fontSize": "12px",
-                "borderRadius": "8px",
-                "padding": "10px"
+                "borderRadius": "14px",
+                "padding": "14px 16px",
+                "border": "1px solid rgba(255,255,255,0.09)",
+                "boxShadow": "0 20px 50px rgba(0,0,0,0.65), 0 0 0 1px rgba(255,255,255,0.04)",
+                "backdropFilter": "blur(16px)",
+                "maxWidth": "300px",
             }
         }
     )
@@ -490,7 +460,6 @@ if st.session_state.animating:
     for i in range(1, num_frames + 1):
         progress = math.sin((i / num_frames) * (math.pi / 2))
         render_metrics(progress)
-        render_radius_summary()
         render_map(progress)
         time.sleep(0.03) 
     
@@ -498,7 +467,6 @@ if st.session_state.animating:
 else:
     current_progress = 1.0 if st.session_state.detonated else 0.0
     render_metrics(current_progress)
-    render_radius_summary()
     render_map(current_progress)
 
 
