@@ -177,6 +177,7 @@ pg = st.navigation([
     st.Page(home,                                              title="Home"),
     st.Page("pages/1_Opportunity_Cost.py",                    title="Opportunity Cost"),
     st.Page("pages/2_Modern_Conflicts_and_Casualties.py",     title="Modern Conflicts & Casualties"),
+    st.Page("pages/3_The_Destructive_Scale.py",               title="The Destructive Scale"),
     st.Page("pages/4_Localized_Impact_Simulator.py",          title="Impact Simulator"),
 ])
 
