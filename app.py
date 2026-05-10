@@ -67,7 +67,33 @@ def home():
         and the existential choices facing modern society.
         """
     )
-    
+
+    st.markdown("""
+    <div style="
+        background: linear-gradient(135deg, rgba(239,35,60,0.08) 0%, rgba(217,4,41,0.04) 100%);
+        border: 1px solid rgba(239,35,60,0.35);
+        border-left: 4px solid #ef233c;
+        border-radius: 12px;
+        padding: 1rem 1.25rem;
+        margin: 0.5rem 0 1.5rem 0;
+    ">
+        <div style="display:flex;align-items:flex-start;gap:0.75rem;">
+            <div style="font-size:1.2rem;margin-top:1px;">⚠️</div>
+            <div>
+                <div style="color:#edf2f4;font-weight:700;font-size:0.9rem;margin-bottom:0.3rem;letter-spacing:0.01em;">
+                    Content Advisory
+                </div>
+                <div style="color:#94a3b8;font-size:0.82rem;line-height:1.55;">
+                    This project contains data and visualisations related to <strong style="color:#cbd5e1;">armed conflict, civilian casualties, and nuclear weapons</strong>.
+                    All content is presented for educational and policy analysis purposes only.
+                    Figures are drawn from peer-reviewed sources and international databases — they are not intended to sensationalise violence,
+                    but to make its scale legible and its consequences unavoidable.
+                </div>
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
     st.divider()
 
     # Motivations Section
