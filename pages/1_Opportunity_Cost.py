@@ -1,381 +1,214 @@
 import streamlit as st
 import pandas as pd
-import plotly.graph_objects as go
 
-# ─── Page config ───
-st.set_page_config(
-    page_title="The Opportunity Cost Calculator",
-    page_icon="💰",
-    layout="wide",
-)
+# ─── Import the safe wrapper component ───
+from voronoi_wrapper import render_voronoi
 
-# ─── Theme colours (matching group spec) ───
-BG_DARK = "#2b2d42"
-GREY = "#8d99ae"
-CRIMSON = "#ef233c"
-OFF_WHITE = "#edf2f4"
-CARD_BG = "#3a3d56"
+# ─── Page Config ───
+st.set_page_config(page_title="Opportunity Cost Calculator", layout="wide")
 
-# ─── Country flag emoji map ───
-FLAGS = {
-    "United States": "🇺🇸", "China": "🇨🇳", "Russia": "🇷🇺",
-    "India": "🇮🇳", "Germany": "🇩🇪", "United Kingdom": "🇬🇧",
-    "Saudi Arabia": "🇸🇦", "France": "🇫🇷", "Ukraine": "🇺🇦",
-    "Japan": "🇯🇵", "South Korea": "🇰🇷", "Israel": "🇮🇱",
-    "Poland": "🇵🇱", "Italy": "🇮🇹", "Australia": "🇦🇺",
-    "Canada": "🇨🇦", "Türkiye": "🇹🇷", "Spain": "🇪🇸",
-    "Netherlands": "🇳🇱", "Algeria": "🇩🇿", "Brazil": "🇧🇷",
-    "Mexico": "🇲🇽", "Rest of World": "🌍",
-}
+# ─── Session State ───
+if "selected_country" not in st.session_state:
+    st.session_state.selected_country = "United States"
 
-# ─── Custom CSS ───
-st.markdown(f"""
+# ─── Custom CSS & Icon Script ───
+st.markdown("""
+<script src="https://unpkg.com/lucide@latest"></script>
 <style>
-    .stApp {{
-        background-color: {BG_DARK};
-        color: {OFF_WHITE};
-    }}
-    section[data-testid="stSidebar"] {{
-        background-color: #1f2033;
-    }}
-    section[data-testid="stSidebar"] .stMarkdown {{
-        color: {OFF_WHITE};
-    }}
+    /* 1. Global Layout Adjustments */
+    .block-container {
+        padding-top: 2rem !important;
+        padding-bottom: 1rem !important;
+    }
 
-    /* ── Header ── */
-    .page-title {{
-        font-size: 3.5vw;
-        font-weight: 900;
-        color: {OFF_WHITE};
-        line-height: 1.1;
-        letter-spacing: -2px;
-        margin: 0;
-        padding-top: 0.5rem;
-    }}
-    .page-title .hl {{
-        color: {CRIMSON};
-    }}
-    .page-subtitle {{
-        font-size: 1.3rem;
-        color: {GREY};
-        margin-top: 0.6rem;
-        margin-bottom: 2.5rem;
-        font-weight: 400;
-    }}
+    /* 2. Typography */
+    h1 { 
+        margin-bottom: 0px !important; 
+        padding-bottom: 0px !important;
+    }
+    .page-subtitle { 
+        color: #cbd5e1; 
+        font-size: 1.02rem; 
+        margin-top: 0px !important; 
+        margin-bottom: 2rem; 
+    }
 
-    /* ── Section headers ── */
-    .section-label {{
-        font-size: 1rem;
-        font-weight: 700;
-        color: {OFF_WHITE};
-        text-transform: uppercase;
-        letter-spacing: 2px;
-        margin-bottom: 0.8rem;
-    }}
+    /* 3. Panel Styling */
+    .panel { 
+        background: transparent !important; 
+        border: none !important; 
+        box-shadow: none !important; 
+        padding: 0px !important; 
+    }
 
-    /* ── Country info ── */
-    .country-info {{
-        background: {CARD_BG};
-        border-radius: 12px;
-        padding: 1rem 1.2rem;
-        margin-bottom: 1rem;
-        border-left: 4px solid {CRIMSON};
-    }}
-    .country-name {{
-        font-size: 1.4rem;
-        font-weight: 700;
-        color: {OFF_WHITE};
-    }}
-    .country-spend {{
-        font-size: 0.95rem;
-        color: {GREY};
-    }}
+    /* Theme Colors */
+    .stApp { 
+        background: radial-gradient(circle at top, #08152f 0%, #050b18 45%, #040812 100%); 
+        color: #edf2f4; 
+    }
+    h1, h2, h3 { color: #edf2f4 !important; letter-spacing: -0.02em; }
+    
+    /* Re-allocation Header */
+    .budget-display { 
+        background: linear-gradient(180deg, rgba(239,35,60,0.15) 0%, rgba(217,4,41,0.05) 100%); 
+        border: 1px solid rgba(239,35,60,0.3); 
+        border-radius: 16px; 
+        padding: 1.2rem; 
+        text-align: center; 
+        margin: 1.5rem 0; 
+    }
+    .budget-label { font-size: 0.85rem; color: #ef233c; font-weight: 700; letter-spacing: 1px; margin-bottom: 5px; }
+    .budget-amount  { font-size: 2.8rem; font-weight: 800; color: #ef233c; line-height: 1.1; }
+    
+    /* Metric Card Design */
+    .metric-card { 
+        background: linear-gradient(180deg, rgba(255,255,255,0.035) 0%, rgba(255,255,255,0.02) 100%); 
+        border: 1px solid rgba(255,255,255,0.08); 
+        border-radius: 16px; 
+        padding: 16px; 
+        text-align: center; 
+        min-height: 170px; 
+        margin-bottom: 10px; 
+        transition: border 0.3s ease;
+    }
+    .metric-card:hover {
+        border: 1px solid rgba(239,35,60,0.4);
+    }
+    
+    /* Lucide Icon Styling */
+    .metric-icon {
+        color: #ef233c;
+        margin-bottom: 12px;
+        display: flex;
+        justify-content: center;
+    }
+    .metric-icon svg {
+        width: 32px;
+        height: 32px;
+        stroke-width: 1.5px;
+    }
 
-    /* ── Calculator header ── */
-    .calc-header {{
-        font-size: 1.4rem;
-        font-weight: 800;
-        color: {OFF_WHITE};
-        text-transform: uppercase;
-        letter-spacing: 2px;
-        text-align: center;
-        margin-bottom: 0.5rem;
-    }}
-    .slider-label {{
-        font-size: 1rem;
-        color: {GREY};
-        margin-bottom: 0.3rem;
-    }}
-
-    /* ── Budget display ── */
-    .budget-display {{
-        background: linear-gradient(135deg, {CRIMSON}22, {CRIMSON}08);
-        border: 1px solid {CRIMSON}44;
-        border-radius: 14px;
-        padding: 1.2rem 1.5rem;
-        text-align: center;
-        margin: 1rem 0 1.5rem 0;
-    }}
-    .budget-amount {{
-        font-size: 2.4rem;
-        font-weight: 800;
-        color: {CRIMSON};
-    }}
-    .budget-label {{
-        font-size: 0.8rem;
-        color: {GREY};
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }}
-
-    /* ── Metric cards ── */
-    .metric-card {{
-        background: {CARD_BG};
-        border-radius: 16px;
-        padding: 1.5rem 1rem;
-        text-align: center;
-        border: 1px solid rgba(255,255,255,0.06);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-        margin-bottom: 1rem;
-    }}
-    .metric-card:hover {{
-        transform: translateY(-4px);
-        box-shadow: 0 8px 30px rgba(0,0,0,0.3);
-    }}
-    .card-icon {{ font-size: 2.8rem; margin-bottom: 0.5rem; }}
-    .card-title {{
-        font-size: 0.8rem;
-        color: {GREY};
-        text-transform: uppercase;
-        letter-spacing: 1.5px;
-        margin-bottom: 0.8rem;
-        font-weight: 600;
-    }}
-    .card-value {{
-        font-size: 3rem;
-        font-weight: 800;
-        color: {CRIMSON};
-        line-height: 1.1;
-    }}
-    .card-unit {{
-        font-size: 0.9rem;
-        color: {OFF_WHITE};
-        opacity: 0.85;
-        margin-top: 0.4rem;
-        font-weight: 600;
-    }}
-    .card-sub {{
-        font-size: 0.75rem;
-        color: {GREY};
-        margin-top: 0.6rem;
-        line-height: 1.4;
-    }}
-
-    .section-divider {{
-        border: none;
-        border-top: 1px solid rgba(255,255,255,0.08);
-        margin: 1rem 0;
-    }}
-
-    .stSelectbox label, .stSlider label {{
-        color: {OFF_WHITE} !important;
-        font-weight: 600 !important;
-    }}
-    div[data-baseweb="select"] {{
-        background-color: {CARD_BG};
-    }}
-
-    .source-footer {{
-        font-size: 0.7rem;
-        color: {GREY};
-        text-align: center;
-        margin-top: 3rem;
-        padding-top: 1rem;
-        border-top: 1px solid rgba(255,255,255,0.06);
-    }}
-    .source-footer a {{ color: {GREY}; }}
+    .metric-label { font-size: 0.82rem; color: #b8c1cc; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+    .metric-value { font-size: 1.8rem; font-weight: 700; color: #edf2f4; margin: 4px 0; }
+    .metric-note  { font-size: 0.78rem; color: #94a3b8; line-height: 1.3; }
+    
+    .instruction-text { font-size: 0.85rem; color: #94a3b8; font-style: italic; margin-bottom: 8px; }
+    .source-footer { text-align: center; color: #94a3b8; font-size: 0.85rem; margin-top: 30px; }
 </style>
+<script>
+    // MutationObserver ensures icons are parsed every time Streamlit updates the DOM
+    const observer = new MutationObserver(() => {
+        if (window.lucide) {
+            lucide.createIcons();
+        }
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+</script>
 """, unsafe_allow_html=True)
 
-# ─── Load data ───
-@st.cache_data
-def load_data():
-    mil = pd.read_csv("data/military_spending.csv")
-    realloc = pd.read_csv("data/reallocation_costs.csv")
-    return mil, realloc
+# ─── Load Data ───
+@st.cache_data(show_spinner=False)
+def load_data() -> pd.DataFrame:
+    df = pd.read_csv("data/military_spending.csv")
+    if "flag_url" not in df.columns:
+        df["flag_url"] = None
+    return df
 
-mil_df, realloc_df = load_data()
+mil_df = load_data()
+
+# ─── Build Hierarchical Data ───
+hierarchy = {"name": "Global Spending", "children": []}
+for continent, group in mil_df.groupby("continent"):
+    continent_children = []
+    for _, row in group.iterrows():
+        continent_children.append({
+            "name": row["country"],
+            "value": int(row["total"]),
+            "label": row["label"],
+            "flag_url": row["flag_url"] if pd.notna(row["flag_url"]) and row["flag_url"] else None,
+        })
+    hierarchy["children"].append({"name": str(continent).upper(), "children": continent_children})
+
+# ─── Pre-compute Logic ───
+country_rows = mil_df[mil_df["country"] == st.session_state.selected_country]
+spend_total = country_rows.iloc[0]["total"] if not country_rows.empty else 0
 
 # ━━━ HEADER ━━━
-st.markdown("""
-<p class="page-title"><span class="hl">Page 1:</span> The Opportunity Cost Calculator</p>
-<p class="page-subtitle">What is the re-allocation impact? Translating military budgets into tangible global development metrics.</p>
-""", unsafe_allow_html=True)
+st.title("The Opportunity Cost Calculator")
+st.markdown('<div class="page-subtitle">Translating global defence spending into sustainable development.</div>', unsafe_allow_html=True)
 
 # ━━━ LAYOUT ━━━
-left_col, right_col = st.columns([1.1, 1.4], gap="large")
+left_col, right_col = st.columns([1.6, 1.0])
 
 # ─── LEFT PANEL ───
 with left_col:
-    st.markdown('<p class="section-label">Global Military Expenditure 2024</p>', unsafe_allow_html=True)
+    st.markdown('<div class="panel">', unsafe_allow_html=True)
+    st.subheader("Global Military Expenditure by Nation (2024)")
+    st.markdown('<p class="instruction-text">Click any country to update the calculator.</p>', unsafe_allow_html=True)
 
-    country_list = mil_df["country"].tolist()
-    selected_country = st.selectbox(
-        "Select a country",
-        country_list,
-        index=0,
-        help="Choose a country to explore its military spending",
+    clicked = render_voronoi(
+        chart_data=hierarchy, 
+        selected_country=st.session_state.selected_country,
+        key="voronoi_chart"
     )
 
-    row = mil_df[mil_df["country"] == selected_country].iloc[0]
-    spend_total = row["total"]
-    spend_label = row["label"]
-    flag = FLAGS.get(selected_country, "")
-
-    st.markdown(f"""
-    <div class="country-info">
-        <div class="country-name">{flag} {selected_country}</div>
-        <div class="country-spend">Military Spending: <strong>{spend_label}</strong> (2024, constant USD)</div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    # ── Treemap (packed-bubble style) ──
-    labels_tree = []
-    values_tree = []
-    colors_tree = []
-    text_tree = []
-
-    for _, r in mil_df.iterrows():
-        c = r["country"]
-        f = FLAGS.get(c, "")
-        labels_tree.append(c)
-        values_tree.append(r["total"])
-        text_tree.append(f"{f}<br><b>{c}</b><br>{r['label']}")
-        colors_tree.append(CRIMSON if c == selected_country else GREY)
-
-    fig = go.Figure(go.Treemap(
-        labels=labels_tree,
-        parents=[""] * len(labels_tree),
-        values=values_tree,
-        text=text_tree,
-        textinfo="text",
-        textfont=dict(size=13, color=OFF_WHITE),
-        marker=dict(
-            colors=colors_tree,
-            line=dict(width=2, color=BG_DARK),
-        ),
-        hovertemplate="<b>%{label}</b><br>%{value:$,.0f}<extra></extra>",
-    ))
-    fig.update_layout(
-        plot_bgcolor="rgba(0,0,0,0)",
-        paper_bgcolor="rgba(0,0,0,0)",
-        margin=dict(l=0, r=0, t=0, b=0),
-        height=480,
-    )
-    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+    if clicked and clicked != st.session_state.selected_country:
+        st.session_state.selected_country = clicked
+        st.rerun()
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # ─── RIGHT PANEL ───
 with right_col:
-    st.markdown('<p class="calc-header">Interactive Calculator: Re-Allocation Impact</p>', unsafe_allow_html=True)
+    st.markdown('<div class="panel">', unsafe_allow_html=True)
+    st.subheader(f"Re-Allocation Impact: {st.session_state.selected_country}")
 
-    st.markdown('<p class="slider-label">Select a percentage of the defence budget to re-allocate:</p>', unsafe_allow_html=True)
-    pct = st.slider(
-        "Budget %",
-        min_value=0,
-        max_value=20,
-        value=5,
-        step=1,
-        format="%d%%",
-        label_visibility="collapsed",
-    )
+    pct = st.slider("Percentage to re-allocate:", min_value=0, max_value=20, value=5, step=1, format="%d%%")
 
-    reallocated = spend_total * (pct / 100)
+    if spend_total > 0:
+        reallocated = spend_total * (pct / 100)
+        
+        if reallocated >= 1e9:   r_disp = f"${reallocated / 1e9:.1f}B"
+        elif reallocated >= 1e6: r_disp = f"${reallocated / 1e6:.0f}M"
+        else:                    r_disp = f"${reallocated:,.0f}"
 
-    if reallocated >= 1e9:
-        realloc_display = f"${reallocated / 1e9:.1f}B"
-    elif reallocated >= 1e6:
-        realloc_display = f"${reallocated / 1e6:.0f}M"
-    else:
-        realloc_display = f"${reallocated:,.0f}"
+        st.markdown(
+            f'<div class="budget-display">'
+            f'<div class="budget-label">RE-ALLOCATED AMOUNT ({pct}% OF BUDGET)</div>'
+            f'<div class="budget-amount">{r_disp}</div>'
+            f'</div>', 
+            unsafe_allow_html=True
+        )
 
-    st.markdown(f"""
-    <div class="budget-display">
-        <div class="budget-label">Re-allocated Budget ({pct}% of {spend_label})</div>
-        <div class="budget-amount">{realloc_display}</div>
-    </div>
-    """, unsafe_allow_html=True)
+        # ─── Representative Icons for Metrics ───
+        initiatives = [
+            {"name": "NASA ARTEMIS",    "icon": "rocket",           "cost": 93e9,  "sub": "Lunar exploration funding ($93B)"},
+            {"name": "GLOBAL INTERNET", "icon": "satellite-dish",   "cost": 428e9, "sub": "High-speed orbital coverage ($428B)"},
+            {"name": "GLOBAL WASH",     "icon": "droplets",         "cost": 114e9, "sub": "Clean water & sanitation ($114B)"},
+            {"name": "AI INVESTMENT",   "icon": "brain-circuit",    "cost": 252e9, "sub": "GenAI research & data centers ($252B)"},
+        ]
 
-    st.markdown('<hr class="section-divider">', unsafe_allow_html=True)
+        c1, c2 = st.columns(2)
+        cols = [c1, c2, c1, c2]
 
-    # ── Initiative cards ──
-    initiatives = [
-        {
-            "name": "NASA Artemis Missions",
-            "icon": "🚀",
-            "cost": 93_000_000_000,
-            "unit_label": "Full Artemis Programs",
-            "sub": "Complete lunar exploration programme ($93B)",
-        },
-        {
-            "name": "Global Internet Connection",
-            "icon": "🌐",
-            "cost": 428_000_000_000,
-            "unit_label": "of Global Coverage",
-            "sub": "Connecting unserved populations worldwide ($428B)",
-        },
-        {
-            "name": "Global WASH Infrastructure",
-            "icon": "💧",
-            "cost": 114_000_000_000,
-            "unit_label": "of WASH Programs",
-            "sub": "Universal clean water & sanitation ($114B)",
-        },
-        {
-            "name": "Global AI Investment",
-            "icon": "🧠",
-            "cost": 252_000_000_000,
-            "unit_label": "of Global AI Investment",
-            "sub": "New AI data centers & research ($252B)",
-        },
-    ]
-
-    row1_cols = st.columns(2)
-    row2_cols = st.columns(2)
-    card_cols = [row1_cols[0], row1_cols[1], row2_cols[0], row2_cols[1]]
-
-    for idx, init in enumerate(initiatives):
-        with card_cols[idx]:
-            if reallocated > 0:
-                times = reallocated / init["cost"]
-                pct_funded = (reallocated / init["cost"]) * 100
-
-                if times >= 1:
-                    value_display = f"{times:.1f}×"
-                    unit_display = init["unit_label"]
-                else:
-                    value_display = f"{pct_funded:.0f}%"
-                    unit_display = init["unit_label"]
-            else:
-                value_display = "—"
-                unit_display = "Move the slider"
-
-            st.markdown(f"""
-            <div class="metric-card">
-                <div class="card-icon">{init["icon"]}</div>
-                <div class="card-title">{init["name"]}</div>
-                <div class="card-value">{value_display}</div>
-                <div class="card-unit">{unit_display}</div>
-                <div class="card-sub">{init["sub"]}</div>
-            </div>
-            """, unsafe_allow_html=True)
+        for idx, init in enumerate(initiatives):
+            with cols[idx]:
+                times = reallocated / init["cost"] if reallocated > 0 else 0
+                val = "0%" if reallocated == 0 else (f"{times:.1f}×" if times >= 1 else f"{times * 100:.0f}%")
+                
+                st.markdown(
+                    f'''
+                    <div class="metric-card">
+                        <div class="metric-icon">
+                            <i data-lucide="{init['icon']}"></i>
+                        </div>
+                        <div class="metric-label">{init["name"]}</div>
+                        <div class="metric-value">{val}</div>
+                        <div class="metric-note">{init["sub"]}</div>
+                    </div>
+                    ''', 
+                    unsafe_allow_html=True
+                )
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # ━━━ FOOTER ━━━
-st.markdown("""
-<div class="source-footer">
-    Data: <a href="https://www.sipri.org/databases/milex" target="_blank">SIPRI Military Expenditure Database</a> (2023 constant USD) &nbsp;|&nbsp;
-    <a href="https://oig.nasa.gov/docs/IG-22-003.pdf" target="_blank">NASA OIG</a> &nbsp;|&nbsp;
-    <a href="https://www.itu.int" target="_blank">ITU</a> &nbsp;|&nbsp;
-    <a href="https://www.unicef.org/wash" target="_blank">UNICEF WASH</a> &nbsp;|&nbsp;
-    <a href="https://aiindex.stanford.edu/report/" target="_blank">Stanford HAI</a>
-</div>
-""", unsafe_allow_html=True)
+st.markdown('<div class="source-footer">Data: SIPRI Military Expenditure Database</div>', unsafe_allow_html=True)

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3-weighted-voronoi@1.1.3/build/d3-weighted-voronoi.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3-voronoi-map@2.1.1/build/d3-voronoi-map.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3-voronoi-treemap@1.1.2/build/d3-voronoi-treemap.min.js"></script>
+    
+    <style>
+        body { margin: 0; padding: 0; overflow: hidden; font-family: sans-serif; background: transparent; }
+        svg { width: 100vw; height: 100vh; display: block; }
+        .cell { cursor: pointer; transition: fill 0.3s ease, stroke-width 0.3s ease; }
+        .cell:hover { opacity: 0.8; }
+        .label { fill: #ffffff; text-anchor: middle; font-size: 18px; font-weight: bold; pointer-events: none; }
+        .value { fill: #f8f9fa; text-anchor: middle; font-size: 18px; pointer-events: none; }
+    </style>
+</head>
+<body>
+    <svg id="chart"></svg>
+    <script>
+        function sendMessageToStreamlitClient(type, data) {
+            window.parent.postMessage({ isStreamlitMessage: true, type: type, ...data }, "*");
+        }
+        function sendValue(value) {
+            sendMessageToStreamlitClient("streamlit:setComponentValue", { value: value });
+        }
+        function setFrameHeight(height) {
+            sendMessageToStreamlitClient("streamlit:setFrameHeight", { height: height });
+        }
+
+        const CELL_COLOR      = "#8d99ae"; 
+        const BORDER_COLOR    = "#2b2d42"; 
+        const RED_HIGHLIGHT   = "#ef233c"; 
+        const WHITE_STROKE    = "#ffffff";
+        const PADDING         = 5; 
+
+        const INTERNAL_WIDTH = 1000;
+        const INTERNAL_HEIGHT = 1000;
+        
+        // ─── REDUCED RADIUS FOR A SMALLER VISUAL ───
+        const RADIUS = 480; 
+
+        let isChartDrawn = false; 
+
+        function drawChart(hierarchyData) {
+            const svg = d3.select("#chart")
+                .attr("viewBox", `0 0 ${INTERNAL_WIDTH} ${INTERNAL_HEIGHT}`)
+                .attr("preserveAspectRatio", "xMidYMid meet");
+
+            svg.selectAll("*").remove(); 
+            setFrameHeight(750);
+
+            const g = svg.append("g")
+                .attr("transform", `translate(${INTERNAL_WIDTH / 2}, ${INTERNAL_HEIGHT / 2})`);
+
+            const circlePolygon = [];
+            for (let i = 0; i < 64; i++) {
+                const angle = (i / 64) * Math.PI * 2;
+                circlePolygon.push([Math.cos(angle) * RADIUS, Math.sin(angle) * RADIUS]);
+            }
+
+            const root = d3.hierarchy(hierarchyData)
+                .sum(d => d.value)
+                .sort((a, b) => b.value - a.value);
+
+            const voronoiTreemap = d3.voronoiTreemap().clip(circlePolygon);
+            voronoiTreemap(root);
+
+            const leaves = root.leaves();
+            
+            const cellGroups = g.selectAll(".node")
+                .data(leaves)
+                .enter()
+                .append("g")
+                .attr("class", "node")
+                .on("click", (event, d) => sendValue(d.data.name)); 
+
+            cellGroups.append("path")
+                .attr("class", "cell")
+                .attr("d", d => {
+                    const scaledPolygon = d.polygon.map(p => {
+                        const dx = p[0] - d3.polygonCentroid(d.polygon)[0];
+                        const dy = p[1] - d3.polygonCentroid(d.polygon)[1];
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        return [
+                            p[0] - (dx / dist) * PADDING,
+                            p[1] - (dy / dist) * PADDING
+                        ];
+                    });
+                    return "M" + scaledPolygon.join("L") + "Z";
+                })
+                .style("fill", CELL_COLOR) 
+                .style("stroke-width", "2px") 
+                .style("stroke", BORDER_COLOR);
+
+            cellGroups.each(function(d) {
+                const centroid = d3.polygonCentroid(d.polygon);
+                const elem = d3.select(this);
+
+                if (d.data.flag_url) {
+                    elem.append("image")
+                        .attr("href", d.data.flag_url)
+                        .attr("width", 36)
+                        .attr("height", 24)
+                        .attr("x", centroid[0] - 18)
+                        .attr("y", centroid[1] - 35);
+                }
+
+                elem.append("text").attr("class", "label").attr("x", centroid[0]).attr("y", centroid[1] + 10).text(d.data.name);
+                elem.append("text").attr("class", "value").attr("x", centroid[0]).attr("y", centroid[1] + 30).text(d.data.label);
+            });
+
+            isChartDrawn = true;
+        }
+
+        function updateSelection(selectedCountry) {
+            d3.selectAll(".cell")
+                .style("fill", d => d.data.name === selectedCountry ? RED_HIGHLIGHT : CELL_COLOR)
+                .style("stroke-width", d => d.data.name === selectedCountry ? "5px" : "2px")
+                .style("stroke", d => d.data.name === selectedCountry ? WHITE_STROKE : BORDER_COLOR);
+        }
+
+        window.addEventListener("message", function(event) {
+            if (event.data.type === "streamlit:render") {
+                const args = event.data.args;
+                if (args.chart_data) {
+                    if (!isChartDrawn) drawChart(args.chart_data);
+                    updateSelection(args.selected_country);
+                }
+            }
+        });
+
+        sendMessageToStreamlitClient("streamlit:componentReady", { apiVersion: 1 });
+    </script>
+</body>
+</html>

@@ -268,8 +268,8 @@ left_col, right_col = st.columns([1, 1.5], gap="large")
 # ─── LEFT PANEL ───
 with left_col:
     st.markdown('<div class="panel">', unsafe_allow_html=True)
-    st.subheader("Baseline: Little Boy (15 kt)")
-    st.markdown('<p class="instruction-text">Select a weapon to compare against the Hiroshima baseline.</p>', unsafe_allow_html=True)
+    st.subheader("Select a Weapon")
+    st.markdown('<p class="instruction-text">Choose any nuclear weapon to see how it compares to the Hiroshima baseline.</p>', unsafe_allow_html=True)
 
     dropdown_options = df["dropdown_label"].tolist()
     selected_label = st.selectbox(
@@ -292,8 +292,6 @@ with left_col:
         <line x1="70" y1="120" x2="130" y2="120" stroke="#ef233c" stroke-width="2" opacity="0.35"/>
         <line x1="70" y1="200" x2="130" y2="200" stroke="#ef233c" stroke-width="2" opacity="0.35"/>
         <line x1="70" y1="260" x2="130" y2="260" stroke="#ef233c" stroke-width="2" opacity="0.35"/>
-        <text x="100" y="420" text-anchor="middle" fill="#edf2f4" font-size="16" font-weight="800">{bomb["bomb_name"]}</text>
-        <text x="100" y="445" text-anchor="middle" fill="#94a3b8" font-size="12">{bomb["yield_display"]}</text>
     </svg>
     """
     st.markdown(bomb_svg, unsafe_allow_html=True)
@@ -316,7 +314,7 @@ with right_col:
     st.markdown('<div class="panel">', unsafe_allow_html=True)
     hiroshima_ratio = int(bomb["hiroshima_ratio"])
 
-    st.subheader(f"Equivalent Yield: {bomb['bomb_name']} ({bomb['yield_display']})")
+    st.subheader("Hiroshima Equivalent Yield")
 
     # Big number
     st.markdown(f"""
@@ -331,104 +329,137 @@ with right_col:
     grid_html = f"""
     <html>
     <body style="margin:0;padding:0;background:transparent;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
-    <div style="background:linear-gradient(180deg, rgba(255,255,255,0.025) 0%, rgba(255,255,255,0.01) 100%);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:20px;">
-        <!-- Top labels -->
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
-            <div>
-                <div style="color:#ef233c;font-size:1.4rem;font-weight:900;">{hiroshima_ratio:,}×</div>
-                <div style="color:#b8c1cc;font-size:0.7rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;">LITTLE BOY<br>EQUIVALENT</div>
-            </div>
-            <div style="text-align:right;">
-                <div style="color:#ef233c;font-size:1.4rem;font-weight:900;">{hiroshima_ratio:,}×</div>
-                <div style="color:#b8c1cc;font-size:0.7rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;">LITTLE BOY<br>EQUIVALENT</div>
-            </div>
+
+    <!-- Hover tooltip -->
+    <div id="tooltip" style="
+        display:none;
+        position:fixed;
+        background:linear-gradient(180deg,rgba(8,21,47,0.97) 0%,rgba(5,11,24,0.97) 100%);
+        border:1px solid rgba(239,35,60,0.45);
+        border-radius:12px;
+        padding:12px 16px;
+        pointer-events:none;
+        z-index:9999;
+        min-width:210px;
+        box-shadow:0 8px 32px rgba(0,0,0,0.5);
+    ">
+        <div style="color:#ef233c;font-size:0.75rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;">☢ Baseline Reference</div>
+        <div style="color:#edf2f4;font-size:1rem;font-weight:800;margin-bottom:8px;">Little Boy — 15 kt</div>
+        <div style="color:#94a3b8;font-size:0.78rem;line-height:1.5;">
+            <span style="color:#cbd5e1;font-weight:600;">Country:</span> United States<br>
+            <span style="color:#cbd5e1;font-weight:600;">Dropped:</span> Hiroshima, 6 Aug 1945<br>
+            <span style="color:#cbd5e1;font-weight:600;">Yield:</span> ~15 kilotons TNT<br>
+            <span style="color:#cbd5e1;font-weight:600;">Killed:</span> ~70,000–80,000 instantly<br>
+            <span style="color:#cbd5e1;font-weight:600;">Total deaths:</span> ~140,000 by end of 1945
         </div>
-        <canvas id="bombGrid" style="display:block;margin:0 auto;width:100%;"></canvas>
-        <!-- Bottom section -->
-        <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:16px;">
-            <div style="display:flex;flex-wrap:wrap;gap:6px;">
-                {"".join([f'<div style="background:linear-gradient(180deg, rgba(239,35,60,0.9) 0%, rgba(217,4,41,0.8) 100%);border-radius:8px;padding:10px 18px;font-size:0.8rem;font-weight:700;color:#edf2f4;text-align:center;border:1px solid rgba(239,35,60,0.4);">1,000<br>BOMBS</div>' for _ in range(min(int(hiroshima_ratio) // 1000, 5))])}
-            </div>
-            <div style="text-align:right;">
-                <div style="font-size:0.7rem;font-weight:600;color:#b8c1cc;text-transform:uppercase;letter-spacing:1px;">OVER</div>
-                <div style="font-size:2.2rem;font-weight:900;color:#ef233c;line-height:1;">{hiroshima_ratio:,}×</div>
-                <div style="font-size:0.7rem;font-weight:700;color:#b8c1cc;letter-spacing:1px;">EXPLOSIVE FORCE</div>
-            </div>
-        </div>
+        <div style="color:#64748b;font-size:0.72rem;margin-top:8px;font-style:italic;">Each icon in this grid = 1 Little Boy</div>
     </div>
+
+    <div id="gridWrap" style="background:linear-gradient(180deg, rgba(255,255,255,0.025) 0%, rgba(255,255,255,0.01) 100%);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:20px;cursor:crosshair;">
+        <canvas id="bombGrid" style="display:block;margin:0 auto;width:100%;"></canvas>
+    </div>
+
     <script>
     (function() {{
-        const canvas = document.getElementById('bombGrid');
-        const ctx = canvas.getContext('2d');
+        const canvas  = document.getElementById('bombGrid');
+        const ctx     = canvas.getContext('2d');
+        const tooltip = document.getElementById('tooltip');
+        const wrap    = document.getElementById('gridWrap');
 
-        const containerWidth = canvas.parentElement.clientWidth - 40;
-        const targetHeight = 380;
+        const containerWidth = wrap.clientWidth - 40;
+        const targetHeight   = 380;
+        const totalBombs     = {hiroshima_ratio};
+        const maxBombs       = Math.max(totalBombs, 3333);
 
-        const totalBombs = {hiroshima_ratio};
-        const maxBombs = Math.max(totalBombs, 3333);
-
-        let bombW = 6, bombH = 10, gap = 2;
-        let stepX, stepY, cols, rows;
-
+        let bombW, bombH, gap, stepX, stepY, cols, rows;
         for (let size = 10; size >= 2; size--) {{
-            bombH = size;
-            bombW = Math.max(Math.round(size * 0.6), 2);
-            gap = Math.max(Math.round(size * 0.2), 1);
-            stepX = bombW + gap;
-            stepY = bombH + gap;
-            cols = Math.floor(containerWidth / stepX);
-            rows = Math.ceil(maxBombs / cols);
+            bombH  = size;
+            bombW  = Math.max(Math.round(size * 0.6), 2);
+            gap    = Math.max(Math.round(size * 0.2), 1);
+            stepX  = bombW + gap;
+            stepY  = bombH + gap;
+            cols   = Math.floor(containerWidth / stepX);
+            rows   = Math.ceil(maxBombs / cols);
             if (rows * stepY <= targetHeight) break;
         }}
 
-        canvas.width = cols * stepX;
-        canvas.height = rows * stepY;
-        canvas.style.width = '100%';
+        canvas.width        = cols * stepX;
+        canvas.height       = rows * stepY;
+        canvas.style.width  = '100%';
         canvas.style.height = canvas.height + 'px';
 
-        let count = 0;
-        for (let r = 0; r < rows; r++) {{
-            for (let c = 0; c < cols; c++) {{
-                if (count >= maxBombs) break;
-                const x = c * stepX;
-                const y = r * stepY;
-                const filled = count < totalBombs;
+        function drawBomb(idx, filled, highlight) {{
+            const r  = Math.floor(idx / cols);
+            const c  = idx % cols;
+            const x  = c * stepX;
+            const y  = r * stepY;
 
-                if (filled) {{
-                    ctx.fillStyle = '#ef233c';
-                    ctx.globalAlpha = 0.9;
-                }} else {{
-                    ctx.fillStyle = 'rgba(148,163,184,0.1)';
-                    ctx.globalAlpha = 1;
-                }}
+            const noseH  = bombH * 0.25;
+            const bodyH  = bombH * 0.55;
+            const finH   = bombH * 0.2;
+            const bodyBW = bombW * 0.6;
+            const cx     = x + bombW / 2;
 
-                const noseH = bombH * 0.25;
-                const bodyH = bombH * 0.55;
-                const finH = bombH * 0.2;
-                const bodyBW = bombW * 0.6;
-                const cx = x + bombW / 2;
-
-                ctx.beginPath();
-                ctx.moveTo(cx, y);
-                ctx.lineTo(cx - bodyBW/2, y + noseH);
-                ctx.lineTo(cx + bodyBW/2, y + noseH);
-                ctx.closePath();
-                ctx.fill();
-
-                ctx.fillRect(cx - bodyBW/2, y + noseH, bodyBW, bodyH);
-
-                ctx.beginPath();
-                ctx.moveTo(cx - bombW/2, y + noseH + bodyH + finH);
-                ctx.lineTo(cx - bodyBW/2, y + noseH + bodyH);
-                ctx.lineTo(cx + bodyBW/2, y + noseH + bodyH);
-                ctx.lineTo(cx + bombW/2, y + noseH + bodyH + finH);
-                ctx.closePath();
-                ctx.fill();
-
-                count++;
+            if (highlight) {{
+                ctx.fillStyle  = '#ffffff';
+                ctx.globalAlpha = 1;
+            }} else if (filled) {{
+                ctx.fillStyle  = '#ef233c';
+                ctx.globalAlpha = 0.9;
+            }} else {{
+                ctx.fillStyle  = 'rgba(148,163,184,0.1)';
+                ctx.globalAlpha = 1;
             }}
+
+            ctx.beginPath();
+            ctx.moveTo(cx, y);
+            ctx.lineTo(cx - bodyBW/2, y + noseH);
+            ctx.lineTo(cx + bodyBW/2, y + noseH);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.fillRect(cx - bodyBW/2, y + noseH, bodyBW, bodyH);
+
+            ctx.beginPath();
+            ctx.moveTo(cx - bombW/2, y + noseH + bodyH + finH);
+            ctx.lineTo(cx - bodyBW/2, y + noseH + bodyH);
+            ctx.lineTo(cx + bodyBW/2, y + noseH + bodyH);
+            ctx.lineTo(cx + bombW/2, y + noseH + bodyH + finH);
+            ctx.closePath();
+            ctx.fill();
         }}
+
+        // Draw all dim first
+        for (let i = 0; i < maxBombs; i++) drawBomb(i, false, false);
         ctx.globalAlpha = 1;
+
+        // Animate fill in batches
+        const BATCH = Math.max(1, Math.ceil(totalBombs / 60));
+        let filled = 0;
+        function animate() {{
+            const end = Math.min(filled + BATCH, totalBombs);
+            for (let i = filled; i < end; i++) drawBomb(i, true, false);
+            filled = end;
+            ctx.globalAlpha = 1;
+            if (filled < totalBombs) requestAnimationFrame(animate);
+        }}
+        requestAnimationFrame(animate);
+
+        // ── Hover tooltip ──
+        canvas.addEventListener('mousemove', function(e) {{
+            const rect = canvas.getBoundingClientRect();
+            tooltip.style.display = 'block';
+            tooltip.style.left    = (e.clientX + 16) + 'px';
+            tooltip.style.top     = (e.clientY - 10) + 'px';
+
+            // Flip if too close to right edge
+            if (e.clientX + 16 + 230 > window.innerWidth) {{
+                tooltip.style.left = (e.clientX - 230) + 'px';
+            }}
+        }});
+        canvas.addEventListener('mouseleave', function() {{
+            tooltip.style.display = 'none';
+        }});
     }})();
     </script>
     </body>
@@ -436,14 +467,6 @@ with right_col:
     """
     components.html(grid_html, height=560, scrolling=False)
 
-    # Force banner
-    st.markdown(f"""
-    <div class="force-banner">
-        <div class="force-label">Total Explosive Force</div>
-        <div class="force-value">OVER {hiroshima_ratio:,}×</div>
-        <div class="force-label">the bomb that destroyed Hiroshima</div>
-    </div>
-    """, unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
 # ━━━ DISCLAIMER ━━━
