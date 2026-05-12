@@ -65,9 +65,8 @@ def home():
 
     st.markdown(
         """
-        Welcome to **Bullets Over Hugs**, an interactive data storytelling project. 
         This platform explores patterns in global military spending, the human cost of conflict, 
-        and the existential choices facing modern society.
+        and the existential threat facing modern society.
         """
     )
 
@@ -186,7 +185,7 @@ pg = st.navigation([
     st.Page("pages/2_Modern_Conflicts_and_Casualties.py",     title="Modern Conflicts & Casualties"),
     st.Page("pages/3_The_Destructive_Scale.py",               title="The Destructive Scale"),
     st.Page("pages/4_Localized_Impact_Simulator.py",          title="Impact Simulator"),
-    st.Page("pages/5_Nuclear_Reality.py",                     title="Nuclear Reality"),
+    st.Page("pages/5_Nuclear_Reality.py",                     title="Current Reality"),
 ])
 
 pg.run()
