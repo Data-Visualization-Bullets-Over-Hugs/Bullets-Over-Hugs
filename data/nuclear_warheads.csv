@@ -1,0 +1,10 @@
+country,deployed_strategic,deployed_nonstrategic,reserve_nondeployed,military_stockpile,total_inventory
+Russia,1796,0,2604,4400,5420
+United States,1670,100,1930,3700,5042
+France,280,0,10,290,370
+China,34,0,586,620,620
+United Kingdom,120,0,105,225,225
+Pakistan,0,0,170,170,170
+India,0,0,178,190,190
+Israel,0,0,90,90,90
+North Korea,0,0,60,60,60

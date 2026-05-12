@@ -18,14 +18,14 @@ st.markdown("""
 
     /* Nav links styling */
     [data-testid="stSidebarNavLink"] {
-        font-size: 0.875rem !important;
-        font-weight: 400 !important;
+        font-size: 2.6rem !important;
+        font-weight: 500 !important;
         letter-spacing: 0.02em !important;
-        color: #94a3b8 !important;
+        color: #f1f5f9 !important;
         padding: 0.45rem 1rem !important;
     }
     [data-testid="stSidebarNavLink"]:hover {
-        color: #edf2f4 !important;
+        color: #ffffff !important;
     }
     [data-testid="stSidebarNavLink"][aria-current="page"] {
         font-weight: 600 !important;
@@ -53,13 +53,16 @@ def home():
             color: #edf2f4;
         }
         h1, h2, h3 { color: #edf2f4 !important; letter-spacing: -0.02em; }
+        section[data-testid="stMain"] p,
+        section[data-testid="stMain"] li,
+        section[data-testid="stMain"] .stMarkdown { font-size: 1.05rem !important; line-height: 1.7 !important; }
     </style>
     """, unsafe_allow_html=True)
 
     # Header section
     st.title("Bullets Over Hugs")
     st.subheader("Quantifying the Cost and Risks of the Arms Race")
-    
+
     st.markdown(
         """
         Welcome to **Bullets Over Hugs**, an interactive data storytelling project. 
@@ -74,17 +77,17 @@ def home():
         border: 1px solid rgba(239,35,60,0.35);
         border-left: 4px solid #ef233c;
         border-radius: 12px;
-        padding: 1rem 1.25rem;
+        padding: 1.25rem 1.5rem;
         margin: 0.5rem 0 1.5rem 0;
     ">
-        <div style="display:flex;align-items:flex-start;gap:0.75rem;">
-            <div style="font-size:1.2rem;margin-top:1px;">⚠️</div>
+        <div style="display:flex;align-items:flex-start;gap:0.9rem;">
+            <div style="font-size:1.8rem;margin-top:2px;">⚠️</div>
             <div>
-                <div style="color:#edf2f4;font-weight:700;font-size:0.9rem;margin-bottom:0.3rem;letter-spacing:0.01em;">
+                <div style="color:#edf2f4;font-weight:700;font-size:1.35rem;margin-bottom:0.5rem;letter-spacing:0.01em;">
                     Content Advisory
                 </div>
-                <div style="color:#94a3b8;font-size:0.82rem;line-height:1.55;">
-                    This project contains data and visualisations related to <strong style="color:#cbd5e1;">armed conflict, civilian casualties, and nuclear weapons</strong>.
+                <div style="color:#cbd5e1;font-size:1.1rem;line-height:1.7;">
+                    This project contains data and visualisations related to <strong style="color:#edf2f4;">armed conflict, civilian casualties, and nuclear weapons</strong>.
                     All content is presented for educational and policy analysis purposes only.
                     Figures are drawn from peer-reviewed sources and international databases — they are not intended to sensationalise violence,
                     but to make its scale legible and its consequences unavoidable.
@@ -93,33 +96,6 @@ def home():
         </div>
     </div>
     """, unsafe_allow_html=True)
-
-    st.divider()
-
-    # Motivations Section
-    col_left, col_right = st.columns(2)
-    with col_left:
-        st.markdown("### **The Fiscal Tipping Point**")
-        st.write(
-            """
-            Military expenditure has reached record highs, often at the direct expense of 
-            social and humanitarian goals. 
-            This project explores the **"existential trade-off"** between defense budgets 
-            and human development, aiming to shift perceptions from viewing defense as 
-            an unavoidable necessity to seeing it as a choice with tangible opportunity costs.
-            """
-        )
-    with col_right:
-        st.markdown("### **Existential Vulnerability**")
-        st.write(
-            """
-            Beyond the financial cost, we address the inherent risk of the weapons being developed.
-            The threats to humanity posed by modern arsenals, including catastrophic accidents 
-            or strategic miscalculations, represent a vulnerability that is often ignored 
-            in traditional defense narratives. We aim to quantify these risks to ground 
-            the abstract threat of modern warfare.
-            """
-        )
 
     st.divider()
 
@@ -136,7 +112,7 @@ def home():
 
     # Project Overview
     st.markdown("### **Interactive Visualisation Modules**")
-    p1, p2, p3 = st.columns(3)
+    p1, p2, p3, p4 = st.columns(4)
     with p1:
         st.markdown("#### **1. Opportunity Cost**")
         st.caption("What is the re-allocation impact?")
@@ -149,6 +125,10 @@ def home():
         st.markdown("#### **3. Impact Simulator**")
         st.caption("Visualizing the destructive scale")
         st.write("Using historical baselines to simulate the localized geographic impact of modern nuclear weapons in Sydney.")
+    with p4:
+        st.markdown("#### **4. Nuclear Reality**")
+        st.caption("A final reckoning")
+        st.write("12,187 warheads. 2,100 on high alert. A closing reflection on what the arms race truly costs — and what it makes possible.")
 
     st.divider()
 
@@ -189,11 +169,12 @@ def home():
         """)
     with res_col2:
         st.markdown("""
-        **Casualties & Impact Simulation**
+        **Casualties, Impact & Nuclear Forces**
         * [UNICEF - WASH Infrastructure Costs](https://www.unicef.org/media/85111/file/Wash-Reports-CostOfSanitation.pdf)
         * [ITU - Global Internet Connectivity](https://www.itu.int/dms_pub/itu-d/opb/gen/D-GEN-INVEST.CON-2020-PDF-E.pdf)
         * [Our World in Data - Casualties per War](https://ourworldindata.org/war-and-peace)
         * [NUKEMAP - Physics & Blast Formulas Engine](https://nuclearsecrecy.com/nukemap/)
+        * [FAS - Status of World Nuclear Forces, 2026](https://fas.org/initiative/status-world-nuclear-forces/)
         """)
 
     st.caption("UTS — Master of Data Science and Innovation | 2026")
@@ -205,6 +186,7 @@ pg = st.navigation([
     st.Page("pages/2_Modern_Conflicts_and_Casualties.py",     title="Modern Conflicts & Casualties"),
     st.Page("pages/3_The_Destructive_Scale.py",               title="The Destructive Scale"),
     st.Page("pages/4_Localized_Impact_Simulator.py",          title="Impact Simulator"),
+    st.Page("pages/5_Nuclear_Reality.py",                     title="Nuclear Reality"),
 ])
 
 pg.run()
