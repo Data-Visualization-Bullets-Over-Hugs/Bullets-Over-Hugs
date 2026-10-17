@@ -2,6 +2,8 @@
 
 **UTS Data Visualization — Assignment 3 | Master of Data Science and Innovation | Semester 2, 2026**
 
+**Live dashboard:** https://bullets-over-hugs-xywe6yyf72amtjipl9zbwx.streamlit.app
+
 An interactive Streamlit dashboard quantifying the cost and risks of the global arms race — exploring patterns in military spending, the human cost of conflict, and the existential threat of nuclear weapons.
 
 > **Content Advisory:** This project contains data and visualisations related to armed conflict, civilian casualties, and nuclear weapons. All content is presented for educational and policy analysis purposes only.
@@ -119,3 +121,10 @@ The app opens at [http://localhost:8501](http://localhost:8501).
 ## License
 
 For academic use only — UTS Assignment 3.
+
+## Keeping the app awake
+
+Streamlit Community Cloud puts an app to sleep when nobody has visited it for a while. The
+workflow in `.github/workflows/keep-awake.yml` opens the app in a headless browser every six
+hours (and presses the wake-up button if needed), which counts as a visit and keeps it running.
+Trigger it by hand from the Actions tab with **Run workflow**.
